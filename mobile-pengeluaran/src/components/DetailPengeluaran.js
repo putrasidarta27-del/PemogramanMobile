@@ -17,15 +17,24 @@ export function Screen08Detail(props) {
     setShowDeleteModal, setEditJudul, setEditNominal, setEditCatatan, setSelectedCategoryId,
   } = props;
 
-  const item = selectedItem || {
-    id: 1,
-    judul: 'Makan siang',
-    nominal: 20000,
-    kategori: 'Makanan',
-    id_kategori: 2,
-    tanggal: '2026-09-10',
-    catatan: 'Belum ada catatan',
-  };
+  const item = selectedItem;
+
+  // Jika tidak ada item yang dipilih, kembali ke daftar
+  if (!item) {
+    return (
+      <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
+        <View style={styles.backHeaderRow}>
+          <Pressable style={styles.backLinkBtn} onPress={() => setCurrentScreen('01_Daftar')}>
+            <Text style={styles.backLinkText}>‹ Kembali</Text>
+          </Pressable>
+        </View>
+        <View style={styles.centerStateCard}>
+          <Text style={styles.emptyStateTitle}>Pilih transaksi</Text>
+          <Text style={styles.emptyStateSub}>Silakan pilih transaksi dari daftar.</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.screenContainer, { paddingTop: insets.top }]}>

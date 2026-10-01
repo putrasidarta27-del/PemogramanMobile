@@ -13,7 +13,6 @@ import {
   Screen12DaftarDihapus,
   Screen13DaftarKosong,
   Screen14GagalMemuat,
-  SCREEN_01_ITEMS,
 } from './src/components/DaftarPengeluaran';
 import { Screen08Detail, Screen15DataTidakAda } from './src/components/DetailPengeluaran';
 import {
@@ -52,7 +51,7 @@ function ExpenseApp() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Selected Detail Item
-  const [selectedItem, setSelectedItem] = useState(SCREEN_01_ITEMS[0]);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   // Form Inputs for 02, 04, 05, 09
   const [inputJudul, setInputJudul] = useState('');
@@ -76,7 +75,7 @@ function ExpenseApp() {
   // Sync with real backend if accessible
   const [refreshing, setRefreshing] = useState(false);
   const [realItems, setRealItems] = useState(null);
-  const [itemsList, setItemsList] = useState(SCREEN_01_ITEMS);
+  const [itemsList, setItemsList] = useState([]);
 
   // ─── Hardware Back Button ──────────────────────────────────────
   useEffect(() => {
@@ -108,16 +107,27 @@ function ExpenseApp() {
   }, [currentScreen, prevScreen, showDeleteModal, showScreenPicker]);
 
   // ─── Fetch real backend items silently in background ───────────
-  const fetchBackendList = useCallback(async () => {
+  const fetchBackendList = useCallback(async (isManual = false) => {
     try {
       setRefreshing(true);
       const data = await api.list();
       if (Array.isArray(data) && data.length > 0) {
         setRealItems(data);
         setItemsList(data);
+        // Kembali ke daftar jika sebelumnya di layar kosong/error
+        setCurrentScreen((prev) =>
+          (prev === '13_Daftar_Kosong' || prev === '14_Gagal_Memuat') ? '01_Daftar' : prev
+        );
+      } else if (Array.isArray(data) && data.length === 0) {
+        // Backend kosong → tampil layar 13
+        setItemsList([]);
+        setCurrentScreen('13_Daftar_Kosong');
       }
     } catch {
-      // Offline fallback: keep current itemsList
+      // Jika user sengaja tekan muat ulang dan server mati → tampil layar 14
+      if (isManual) {
+        setCurrentScreen('14_Gagal_Memuat');
+      }
     } finally {
       setRefreshing(false);
     }
@@ -126,6 +136,21 @@ function ExpenseApp() {
   useEffect(() => {
     fetchBackendList();
   }, [fetchBackendList]);
+
+  // ─── Cek item masih ada di server (untuk Layar 15) ────────────
+  const bukaDetail = useCallback(async (item) => {
+    setSelectedItem(item);
+    try {
+      await api.detail(item.id);
+      setCurrentScreen('08_Detail');
+    } catch (e) {
+      if (e.status === 404) {
+        setCurrentScreen('15_Data_Tidak_Ada');
+      } else {
+        setCurrentScreen('08_Detail');
+      }
+    }
+  }, []);
 
   // ─── Trigger Save Flow ─────────────────────────────────────────
   const triggerSaveNew = async () => {
@@ -256,6 +281,8 @@ function ExpenseApp() {
     showNetworkInfo, setShowNetworkInfo,
     refreshing, realItems,
     fetchBackendList,
+    fetchBackendListManual: () => fetchBackendList(true),
+    bukaDetail,
     triggerSaveNew,
     triggerSaveEdit,
     triggerDeleteConfirm,

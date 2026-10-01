@@ -20,8 +20,8 @@ export { SCREEN_01_ITEMS };
 // SCREEN: 01_Daftar (Template Persis Gambar 1 & 2)
 // ═══════════════════════════════════════════════════════════════════
 export function Screen01Daftar(props) {
-  const { insets, itemsList, setSelectedItem, setCurrentScreen, setInputJudul, setInputNominal, setSelectedCategoryId, fetchBackendList } = props;
-  const displayList = itemsList && itemsList.length > 0 ? itemsList : SCREEN_01_ITEMS;
+  const { insets, itemsList, bukaDetail, setCurrentScreen, setInputJudul, setInputNominal, setSelectedCategoryId, fetchBackendListManual } = props;
+  const displayList = (itemsList && itemsList.length > 0) ? itemsList : SCREEN_01_ITEMS;
 
   return (
     <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
@@ -39,7 +39,7 @@ export function Screen01Daftar(props) {
         >
           <Text style={styles.tambahFullBtnText}>+ Tambah pengeluaran</Text>
         </Pressable>
-        <Pressable style={styles.muatUlangRow} onPress={fetchBackendList}>
+        <Pressable style={styles.muatUlangRow} onPress={fetchBackendListManual}>
           <Text style={styles.muatUlangText}>↻ Muat ulang data</Text>
         </Pressable>
       </View>
@@ -49,10 +49,7 @@ export function Screen01Daftar(props) {
           <Pressable
             key={String(item.id || index)}
             style={styles.card01}
-            onPress={() => {
-              setSelectedItem(item);
-              setCurrentScreen('08_Detail');
-            }}
+            onPress={() => bukaDetail ? bukaDetail(item) : setCurrentScreen('08_Detail')}
           >
             <View style={styles.card01TopRow}>
               <Text style={styles.card01Title}>{item.judul}</Text>
@@ -74,7 +71,7 @@ export function Screen01Daftar(props) {
 // ═══════════════════════════════════════════════════════════════════
 export function Screen07DaftarBaru(props) {
   const { insets, itemsList, setSelectedItem, setCurrentScreen, fetchBackendList } = props;
-  const displayList = itemsList && itemsList.length > 0 ? itemsList : SCREEN_01_ITEMS;
+  const displayList = (itemsList && itemsList.length > 0) ? itemsList : SCREEN_01_ITEMS;
 
   return (
     <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
@@ -125,7 +122,7 @@ export function Screen07DaftarBaru(props) {
 // ═══════════════════════════════════════════════════════════════════
 export function Screen10DaftarDiubah(props) {
   const { insets, itemsList, setSelectedItem, setCurrentScreen, fetchBackendList } = props;
-  const displayList = itemsList && itemsList.length > 0 ? itemsList : SCREEN_01_ITEMS;
+  const displayList = (itemsList && itemsList.length > 0) ? itemsList : SCREEN_01_ITEMS;
 
   return (
     <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
@@ -176,7 +173,7 @@ export function Screen10DaftarDiubah(props) {
 // ═══════════════════════════════════════════════════════════════════
 export function Screen12DaftarDihapus(props) {
   const { insets, itemsList, setSelectedItem, setCurrentScreen, fetchBackendList } = props;
-  const displayList = itemsList || SCREEN_01_ITEMS;
+  const displayList = (itemsList && itemsList.length > 0) ? itemsList : SCREEN_01_ITEMS;
 
   return (
     <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
